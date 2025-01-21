@@ -9,7 +9,10 @@ Created on 21 Jan 2025 16:19
 Version 1.0
 */
 
+import com.example.keamanan3jwt.entryPoint.CustomAuthenticationEntryPoint;
+import com.example.keamanan3jwt.filter.JwtFilter;
 import com.example.keamanan3jwt.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,14 +23,22 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private JwtFilter jwtFilter;
+
+    @Autowired
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -55,10 +66,17 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/register"
-                        ).permitAll()
-                        .anyRequest()
-                        .authenticated()
+                        ).permitAll() // Endpoint yang tidak memerlukan autentikasi
+
+                        .anyRequest().authenticated() // Semua request lainnya memerlukan autentikasi
                 )
+                .addFilterBefore(this.jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(sessionManag ->
+                        sessionManag.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> {
+                    exception.authenticationEntryPoint(this.customAuthenticationEntryPoint);
+                })
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable);
 
         return http.build();

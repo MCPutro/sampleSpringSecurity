@@ -10,6 +10,7 @@ Version 1.0
 */
 
 import com.example.keamanan3jwt.service.AuthService;
+import com.example.keamanan3jwt.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,9 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     private AuthService authService;
@@ -29,7 +35,8 @@ public class AuthController {
     public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
         try {
             Authentication authentication = authService.authenticate(username, password);
-            return ResponseEntity.ok("Login successful! Welcome " + authentication.getName());
+            String token = this.jwtUtil.generateToken(authentication.getName(), Arrays.asList("makan", "tidur", "minum"));
+            return ResponseEntity.ok("Login successful! Welcome " + authentication.getName() + " token : "+token);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Invalid credentials: " + e.getMessage());
         }
