@@ -14,5 +14,6 @@
         <module>kemananan1</module>
         <module>JwtCore</module>
         <module>keamanan_tok</module>
+        <module>keamanan2</module>
     </modules>
 </project>
