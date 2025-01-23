@@ -15,5 +15,10 @@
         <module>JwtCore</module>
         <module>keamanan_tok</module>
         <module>keamanan2</module>
+        <module>keamanan3</module>
+        <module>keamanan3Jwt</module>
+        <module>user-service</module>
+        <module>product-service</module>
+        <module>transaction-service</module>
     </modules>
 </project>
